@@ -178,7 +178,14 @@
                   template(v-for='tocSubItem in tocItem.children')
                     v-list-item(@click='$vuetify.goTo(tocSubItem.anchor, scrollOpts)')
                       v-icon.px-3(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
-                      v-list-item-title.px-3.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-1`') {{tocSubItem.title}}
+                      v-list-item-title.px-3.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-3`') {{tocSubItem.title}}
+                    //- v-divider(inset, v-if='tocIdx < toc.length - 1')
+
+                    template(v-if='tocSubItem.children.length')
+                      template(v-for='lastItem in tocSubItem.children')
+                        v-list-item(@click='$vuetify.goTo(lastItem.anchor, scrollOpts)')
+                          v-icon.px-5(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-page-last` }}
+                          v-list-item-title.px-5.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-0`') {{lastItem.title}}                    
                     //- v-divider(inset, v-if='tocIdx < toc.length - 1')
 
             v-card.mb-5(v-if='tags.length > 0')
@@ -509,7 +516,10 @@ export default {
       return JSON.parse(Buffer.from(this.sidebar, 'base64').toString())
     },
     tocDecoded () {
-      return JSON.parse(Buffer.from(this.toc, 'base64').toString())
+      //return JSON.parse(Buffer.from(this.toc, 'base64').toString())
+      let result = JSON.parse(Buffer.from(this.toc, 'base64').toString());
+      console.log("...tocDecoded...",result);
+      return result;
     },
     hasAdminPermission: get('page/effectivePermissions@system.manage'),
     hasWritePagesPermission: get('page/effectivePermissions@pages.write'),
