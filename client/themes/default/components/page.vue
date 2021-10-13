@@ -329,7 +329,6 @@ import ClipboardJS from 'clipboard'
 import Vue from 'vue'
 
 Vue.component('Tabset', Tabset)
-//console.log("<<< navMode >>>", navMode)
 
 Prism.plugins.autoloader.languages_path = '/_assets/js/prism/'
 Prism.plugins.NormalizeWhitespace.setDefaults({
