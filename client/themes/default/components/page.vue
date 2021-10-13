@@ -184,8 +184,8 @@
                     template(v-if='tocSubItem.children.length')
                       template(v-for='lastItem in tocSubItem.children')
                         v-list-item(@click='$vuetify.goTo(lastItem.anchor, scrollOpts)')
-                          v-icon.px-5(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-page-last` }}
-                          v-list-item-title.px-5.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-0`') {{lastItem.title}}                    
+                          v-icon.px-6(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-page-last` }}
+                          v-list-item-title.px-0.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-0`') {{lastItem.title}}                    
                     //- v-divider(inset, v-if='tocIdx < toc.length - 1')
 
             v-card.mb-5(v-if='tags.length > 0')
