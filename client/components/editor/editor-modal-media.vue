@@ -142,7 +142,7 @@
                 :label-idle='$t(`editor:assets.uploadAssetsDropZone`)'
                 allow-multiple='true'
                 :files='files'
-                max-files='10'
+                max-files='50'
                 server='/u'
                 :instant-upload='false'
                 :allow-revert='false'
@@ -150,7 +150,7 @@
               )
             v-divider
             v-card-actions.pa-3
-              .caption.grey--text.text-darken-2 Max 10 files, 5 MB each
+              .caption.grey--text.text-darken-2 Max 50 files, 5 MB each
               v-spacer
               v-btn.px-4(color='teal', dark, @click='upload') {{$t('common:actions.upload')}}
 
