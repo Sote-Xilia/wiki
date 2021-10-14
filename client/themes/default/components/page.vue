@@ -57,115 +57,6 @@
       v-container.pl-5.pt-4(fluid, grid-list-xl)
         v-layout(row)          
 
-          v-flex.page-col-content(xs12, lg9, xl10)
-            v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasAnyPagePermissions')
-              template(v-slot:activator='{ on: onEditActivator }')
-                v-speed-dial(
-                  v-model='pageEditFab'
-                  direction='top'
-                  open-on-hover
-                  transition='scale-transition'
-                  bottom
-                  :right='!$vuetify.rtl'
-                  :left='$vuetify.rtl'
-                  fixed
-                  dark
-                  )
-                  template(v-slot:activator)
-                    v-btn.btn-animate-edit(
-                      fab
-                      color='primary'
-                      v-model='pageEditFab'
-                      @click='pageEdit'
-                      v-on='onEditActivator'
-                      :disabled='!hasWritePagesPermission'
-                      :aria-label='$t(`common:page.editPage`)'
-                      )
-                      v-icon mdi-pencil
-                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasReadHistoryPermission')
-                    template(v-slot:activator='{ on }')
-                      v-btn(
-                        fab
-                        small
-                        color='white'
-                        light
-                        v-on='on'
-                        @click='pageHistory'
-                        )
-                        v-icon(size='20') mdi-history
-                    span {{$t('common:header.history')}}
-                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasReadSourcePermission')
-                    template(v-slot:activator='{ on }')
-                      v-btn(
-                        fab
-                        small
-                        color='white'
-                        light
-                        v-on='on'
-                        @click='pageSource'
-                        )
-                        v-icon(size='20') mdi-code-tags
-                    span {{$t('common:header.viewSource')}}
-                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasWritePagesPermission')
-                    template(v-slot:activator='{ on }')
-                      v-btn(
-                        fab
-                        small
-                        color='white'
-                        light
-                        v-on='on'
-                        @click='pageConvert'
-                        )
-                        v-icon(size='20') mdi-lightning-bolt
-                    span {{$t('common:header.convert')}}
-                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasWritePagesPermission')
-                    template(v-slot:activator='{ on }')
-                      v-btn(
-                        fab
-                        small
-                        color='white'
-                        light
-                        v-on='on'
-                        @click='pageDuplicate'
-                        )
-                        v-icon(size='20') mdi-content-duplicate
-                    span {{$t('common:header.duplicate')}}
-                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasManagePagesPermission')
-                    template(v-slot:activator='{ on }')
-                      v-btn(
-                        fab
-                        small
-                        color='white'
-                        light
-                        v-on='on'
-                        @click='pageMove'
-                        )
-                        v-icon(size='20') mdi-content-save-move-outline
-                    span {{$t('common:header.move')}}
-                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasDeletePagesPermission')
-                    template(v-slot:activator='{ on }')
-                      v-btn(
-                        fab
-                        dark
-                        small
-                        color='red'
-                        v-on='on'
-                        @click='pageDelete'
-                        )
-                        v-icon(size='20') mdi-trash-can-outline
-                    span {{$t('common:header.delete')}}
-              span {{$t('common:page.editPage')}}
-            v-alert.mb-5(v-if='!isPublished', color='red', outlined, icon='mdi-minus-circle', dense)
-              .caption {{$t('common:page.unpublishedWarning')}}
-            .contents(ref='container')
-              slot(name='contents')
-            .comments-container#discussion(v-if='commentsEnabled && commentsPerms.read && !printView')
-              .comments-header
-                v-icon.mr-2(dark) mdi-comment-text-outline
-                span {{$t('common:comments.title')}}
-              .comments-main
-                slot(name='comments')
-
           v-flex.page-col-sd(lg3, xl2, v-if='$vuetify.breakpoint.lgAndUp')
             v-card.mb-5(v-if='tocDecoded.length')
               .overline.pa-5.pb-0(:class='$vuetify.theme.dark ? `blue--text text--lighten-2` : `primary--text`') {{$t('common:page.toc')}}
@@ -301,6 +192,116 @@
                       v-icon(:color='printView ? `primary` : `grey`') mdi-printer
                   span {{$t('common:page.printFormat')}}
                 v-spacer
+
+          v-flex.page-col-content(xs12, lg9, xl10)
+            v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasAnyPagePermissions')
+              template(v-slot:activator='{ on: onEditActivator }')
+                v-speed-dial(
+                  v-model='pageEditFab'
+                  direction='top'
+                  open-on-hover
+                  transition='scale-transition'
+                  bottom
+                  :right='!$vuetify.rtl'
+                  :left='$vuetify.rtl'
+                  fixed
+                  dark
+                  )
+                  template(v-slot:activator)
+                    v-btn.btn-animate-edit(
+                      fab
+                      color='primary'
+                      v-model='pageEditFab'
+                      @click='pageEdit'
+                      v-on='onEditActivator'
+                      :disabled='!hasWritePagesPermission'
+                      :aria-label='$t(`common:page.editPage`)'
+                      )
+                      v-icon mdi-pencil
+                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasReadHistoryPermission')
+                    template(v-slot:activator='{ on }')
+                      v-btn(
+                        fab
+                        small
+                        color='white'
+                        light
+                        v-on='on'
+                        @click='pageHistory'
+                        )
+                        v-icon(size='20') mdi-history
+                    span {{$t('common:header.history')}}
+                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasReadSourcePermission')
+                    template(v-slot:activator='{ on }')
+                      v-btn(
+                        fab
+                        small
+                        color='white'
+                        light
+                        v-on='on'
+                        @click='pageSource'
+                        )
+                        v-icon(size='20') mdi-code-tags
+                    span {{$t('common:header.viewSource')}}
+                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasWritePagesPermission')
+                    template(v-slot:activator='{ on }')
+                      v-btn(
+                        fab
+                        small
+                        color='white'
+                        light
+                        v-on='on'
+                        @click='pageConvert'
+                        )
+                        v-icon(size='20') mdi-lightning-bolt
+                    span {{$t('common:header.convert')}}
+                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasWritePagesPermission')
+                    template(v-slot:activator='{ on }')
+                      v-btn(
+                        fab
+                        small
+                        color='white'
+                        light
+                        v-on='on'
+                        @click='pageDuplicate'
+                        )
+                        v-icon(size='20') mdi-content-duplicate
+                    span {{$t('common:header.duplicate')}}
+                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasManagePagesPermission')
+                    template(v-slot:activator='{ on }')
+                      v-btn(
+                        fab
+                        small
+                        color='white'
+                        light
+                        v-on='on'
+                        @click='pageMove'
+                        )
+                        v-icon(size='20') mdi-content-save-move-outline
+                    span {{$t('common:header.move')}}
+                  v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasDeletePagesPermission')
+                    template(v-slot:activator='{ on }')
+                      v-btn(
+                        fab
+                        dark
+                        small
+                        color='red'
+                        v-on='on'
+                        @click='pageDelete'
+                        )
+                        v-icon(size='20') mdi-trash-can-outline
+                    span {{$t('common:header.delete')}}
+              span {{$t('common:page.editPage')}}
+            v-alert.mb-5(v-if='!isPublished', color='red', outlined, icon='mdi-minus-circle', dense)
+              .caption {{$t('common:page.unpublishedWarning')}}
+            .contents(ref='container')
+              slot(name='contents')
+            .comments-container#discussion(v-if='commentsEnabled && commentsPerms.read && !printView')
+              .comments-header
+                v-icon.mr-2(dark) mdi-comment-text-outline
+                span {{$t('common:comments.title')}}
+              .comments-main
+                slot(name='comments')
+
             
     nav-footer
     notify
