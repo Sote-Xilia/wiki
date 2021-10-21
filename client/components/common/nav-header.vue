@@ -569,4 +569,9 @@ export default {
   width: 22px;
 }
 
+/*.v-application .black { */
+header.v-application {
+  background-color: #f2f2f2 !important;
+  /* border-color: #f2f2f2 !important; */
+}
 </style>

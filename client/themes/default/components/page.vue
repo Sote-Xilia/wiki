@@ -25,7 +25,7 @@
         :left='!$vuetify.rtl'
         small
         @click='navShown = !navShown'
-        
+
         v-show='true'
         )
         v-icon mdi-menu
@@ -55,7 +55,7 @@
             .caption.grey--text.text--darken-1 {{description}}
       v-divider
       v-container.pl-5.pt-4(fluid, grid-list-xl)
-        v-layout(row)          
+        v-layout(row)
 
           v-flex.page-col-sd(lg3, xl2, v-if='$vuetify.breakpoint.lgAndUp')
             v-card.mb-5(v-if='tocDecoded.length')
@@ -76,7 +76,7 @@
                     template(v-for='lastItem in tocSubItem.children')
                       v-list-item(@click='$vuetify.goTo(lastItem.anchor, scrollOpts)')
                         v-icon.px-6(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-page-last` }}
-                        v-list-item-title.px-0.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-0`') {{lastItem.title}}                    
+                        v-list-item-title.px-0.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-0`') {{lastItem.title}}
                     //- v-divider(inset, v-if='tocIdx < toc.length - 1')
 
             v-card.mb-5(v-if='tags.length > 0')
@@ -302,7 +302,6 @@
               .comments-main
                 slot(name='comments')
 
-            
     nav-footer
     notify
     search-results
