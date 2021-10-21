@@ -62,19 +62,22 @@
               .overline.pa-5.pb-0(:class='$vuetify.theme.dark ? `blue--text text--lighten-2` : `primary--text`') {{$t('common:page.toc')}}
               v-list.pb-3(dense, nav, :class='$vuetify.theme.dark ? `darken-3-d3` : ``')
                 template(v-for='(tocItem, tocIdx) in tocDecoded')
-                  v-list-item(@click='$vuetify.goTo(tocItem.anchor, scrollOpts)')
+                  //-v-list-item(@click='$vuetify.goTo(tocItem.anchor, scrollOpts)')
+                  v-list-item(@click='goToCustom(tocItem, null)')
                     v-icon(color='grey', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
                     v-list-item-title.px-3 {{tocItem.title}}
                   //- v-divider(v-if='tocIdx < toc.length - 1 || tocItem.children.length')
                   template(v-for='tocSubItem in tocItem.children')
-                    v-list-item(@click='$vuetify.goTo(tocSubItem.anchor, scrollOpts)')
+                    //-v-list-item(@click='$vuetify.goTo(tocSubItem.anchor, scrollOpts)')
+                    v-list-item(@click='goToCustom(tocSubItem, tocItem)' :class='`${tocItem.anchor.replace("#", "")}-children children-item`')
                       v-icon.px-3(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
                       v-list-item-title.px-3.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-3`') {{tocSubItem.title}}
                     //- v-divider(inset, v-if='tocIdx < toc.length - 1')
 
                     //- Tercer nivel agregado
                     template(v-for='lastItem in tocSubItem.children')
-                      v-list-item(@click='$vuetify.goTo(lastItem.anchor, scrollOpts)')
+                      //-v-list-item(@click='$vuetify.goTo(lastItem.anchor, scrollOpts)')
+                      v-list-item(@click='goToCustom(lastItem, tocSubItem)' :class='`${tocSubItem.anchor.replace("#", "")}-children children-item`')
                         v-icon.px-6(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-page-last` }}
                         v-list-item-title.px-0.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-0`') {{lastItem.title}}
                     //- v-divider(inset, v-if='tocIdx < toc.length - 1')
@@ -649,6 +652,41 @@ export default {
       if (focusNewComment) {
         document.querySelector('#discussion-new').focus()
       }
+    },
+
+    goToCustom(item, parent) {
+      this.$vuetify.goTo(item.anchor, this.scrollOpts)
+      
+      // Se cumple solo en el primer nivel (H1)
+      if (!parent) { 
+        // Se ocultan todos los elementos hijos de la tabla de contenidos
+        let childrenToHide = document.querySelectorAll('.children-item')
+        childrenToHide.forEach(cth => cth.style.display = 'none')
+      }
+
+      if (item.children.length) {       
+        // Se muestran todos los elementos hijos del contenido elegido (cliqueado)
+        let selector = item.anchor.replace('#', '')        
+        let childrenToShow = document.querySelectorAll(`.${selector}-children`)
+        childrenToShow.forEach(cts => cts.style.display = 'flex')        
+
+        /*
+        let parent = event.path[1]
+        let isChild = parent.classList.contains('children-item')
+        if (isChild) parent.classList.remove('children-item')     
+
+        // Se ocultan todos los elementos hijos de la tabla de contenidos
+        let childrenToHide = document.querySelectorAll('.children-item')
+        childrenToHide.forEach(cth => cth.style.display = 'none')
+
+        if (isChild) parent.classList.add('children-item')
+
+        // Se muestran todos los elementos hijos del contenido elegido (cliqueado)
+        let selector = item.anchor.replace('#', '')
+        let childrenToShow = document.querySelectorAll(`.${selector}-children`)
+        childrenToShow.forEach(cts => cts.style.display = 'flex')
+        */                 
+      }
     }
   }
 }
@@ -685,4 +723,7 @@ export default {
   display: none;
 }
 
+.children-item {
+  display: none;
+}
 </style>
