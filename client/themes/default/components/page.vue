@@ -664,29 +664,19 @@ export default {
         childrenToHide.forEach(cth => cth.style.display = 'none')
       }
 
-      if (item.children.length) {       
+      if (item.children.length) {
         // Se muestran todos los elementos hijos del contenido elegido (cliqueado)
         let selector = item.anchor.replace('#', '')        
         let childrenToShow = document.querySelectorAll(`.${selector}-children`)
-        childrenToShow.forEach(cts => cts.style.display = 'flex')        
-
-        /*
-        let parent = event.path[1]
-        let isChild = parent.classList.contains('children-item')
-        if (isChild) parent.classList.remove('children-item')     
-
-        // Se ocultan todos los elementos hijos de la tabla de contenidos
-        let childrenToHide = document.querySelectorAll('.children-item')
-        childrenToHide.forEach(cth => cth.style.display = 'none')
-
-        if (isChild) parent.classList.add('children-item')
-
-        // Se muestran todos los elementos hijos del contenido elegido (cliqueado)
-        let selector = item.anchor.replace('#', '')
-        let childrenToShow = document.querySelectorAll(`.${selector}-children`)
         childrenToShow.forEach(cts => cts.style.display = 'flex')
-        */                 
       }
+
+      // Se eliminan la clase de los elementos "resaltados"
+      let items = document.querySelectorAll('.content-shown')
+      items.forEach(item => item.classList.remove('content-shown'))
+      
+      let content = event.path[1]
+      content.classList.add('content-shown')
     }
   }
 }
@@ -725,5 +715,9 @@ export default {
 
 .children-item {
   display: none;
+}
+
+.content-shown {
+  background-color: rgb(193, 224, 252);
 }
 </style>
