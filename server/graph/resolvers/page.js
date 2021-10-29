@@ -1,5 +1,6 @@
 const _ = require('lodash')
 const graphHelper = require('../../helpers/graph')
+const HTMLParser = require('node-html-parser')
 
 /* global WIKI */
 
@@ -52,16 +53,9 @@ module.exports = {
     async search (obj, args, context) {
       if (WIKI.data.searchEngine) {
         const resp = await WIKI.data.searchEngine.query(args.query, args)
-        return {
-          ...resp,
-          results: _.filter(resp.results, r => {
-            return WIKI.auth.checkAccess(context.req.user, ['read:pages'], {
-              path: r.path,
-              locale: r.locale,
-              tags: r.tags // Tags are needed since access permissions can be limited by page tags too
-            })
-          })
-        }
+    
+        resp.results = await filterResults(resp.results, context, args.query)
+        return resp
       } else {
         return {
           results: [],
@@ -602,4 +596,72 @@ module.exports = {
     //   return pg.$relatedQuery('comments')
     // }
   }
+}
+
+const addTitleToPath = async(result, query) => {
+  // Se obtiene la pagina a partir del resultado
+  let page = await WIKI.models.knex('pages').first('render', 'title').where({
+    path: result.path,
+    localeCode: result.locale
+  }); 
+  
+  
+  let renderInUpperCase = page.render.toUpperCase()
+  let queryInUpperCase = query.toUpperCase()
+  let pos = renderInUpperCase.search(queryInUpperCase)  
+  // Si no se encuentra la consulta se retorna el resultado sin titulo enlazado
+  if (pos == -1) return result;
+
+  // Se acorta el contenido segun la posicion de la consulta
+  let render_with_qry = page.render.substring(0, pos + 220)
+  let title_pos = render_with_qry.lastIndexOf('toc-header') 
+
+  // Se controla que haya un titulo en el render (HTML)
+  if (title_pos != -1) {
+    let render_with_title = render_with_qry.substring(0, title_pos + 220) // Se vuelve a reducir el HTML
+    let render_as_HTML = HTMLParser.parse(render_with_title) // Se convierte el String a HTML
+    
+    let titles = render_as_HTML.querySelectorAll('.toc-header') // Se obtienen todos los titulos
+    if (titles.length > 0) {
+      let title = titles[titles.length - 1] // Se obtiene el ultimo titulo
+      let isValid = title && title.id && title.id != '</documentfragmentcontaine'      
+      // Si el titulo obtenido es valido se modifica la ruta del resultado
+      if (isValid) result.path += '/#' + title.id
+    }
+  }
+  
+  return result
+}
+
+
+const checkAccess = async(context, r) => {
+  let obj = {    
+    path: r.path, locale: r.locale, 
+    highlighted: r.highlighted,
+    tags: r.tags // Tags are needed since access permissions can be limited by page tags too    
+  }
+
+  return WIKI.auth.checkAccess(context.req.user, ['read:pages'], obj);   
+}
+
+
+// Funcion modificada para mostrar un fragmento del texto encontrado y 
+// enlazar al titulo mas cercano del resultado
+const filterResults = async(results, context, query) => {  
+  let canAccess = false, promises = [], promise = null;
+  
+  results.forEach(r => {
+    // Se controla si el usuario tiene permisos
+    canAccess = checkAccess(context, r)
+    
+    if (canAccess) {
+      // Se edita el enlace del resultado para enlazarlo al titulo mas cercano
+      promise = addTitleToPath(r, query)
+      promises.push(promise)      
+    }
+  }) 
+
+  // Cuando todos los resultados son procesados, estos se retornan
+  let filtered = await Promise.all(promises);
+  return filtered
 }

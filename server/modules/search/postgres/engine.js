@@ -61,7 +61,7 @@ module.exports = {
     try {
       let suggestions = []
       let qry = `
-        SELECT id, path, locale, title, description
+        SELECT id, path, locale, title, description, ts_headline(content, query) highlighted
         FROM "pagesVector", to_tsquery(?,?) query
         WHERE (query @@ "tokens" OR path ILIKE ?)
       `
