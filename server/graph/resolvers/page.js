@@ -625,8 +625,11 @@ const addTitleToPath = async(result, query) => {
     if (titles.length > 0) {
       let title = titles[titles.length - 1] // Se obtiene el ultimo titulo
       let isValid = title && title.id && title.id != '</documentfragmentcontaine'      
-      // Si el titulo obtenido es valido se modifica la ruta del resultado
-      if (isValid) result.path += '/#' + title.id
+      // Si el titulo obtenido es valido se modifica la ruta del resultado      
+      if (isValid) {
+        let qryAsURL = fixedEncodeURIComponent(queryInUpperCase)        
+        result.path += `?qry=${qryAsURL}#${title.id}`
+      }      
     }
   }
   
@@ -664,4 +667,11 @@ const filterResults = async(results, context, query) => {
   // Cuando todos los resultados son procesados, estos se retornan
   let filtered = await Promise.all(promises);
   return filtered
+}
+
+
+function fixedEncodeURIComponent(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+    return '%' + c.charCodeAt(0).toString(16);
+  });
 }
