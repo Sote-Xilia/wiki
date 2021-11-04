@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@azure/storage-blob": "12.2.1",
+    "@ckeditor/ckeditor5-build-decoupled-document": "31.0.0",
     "@exlinc/keycloak-passport": "1.0.2",
     "@joplin/turndown-plugin-gfm": "1.0.27",
     "@root/csr": "0.8.1",
