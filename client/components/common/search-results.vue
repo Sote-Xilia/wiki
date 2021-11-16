@@ -25,6 +25,7 @@
                 v-list-item-title(v-text='item.title')
                 v-list-item-subtitle.caption(v-text='item.description')
                 .caption.grey--text(v-text='item.path')
+                .caption.grey--text(v-html='item.highlighted')
               v-list-item-action
                 v-chip(label, outlined) {{item.locale.toUpperCase()}}
             v-divider(v-if='idx < results.length - 1')
@@ -60,6 +61,12 @@ import { sync } from 'vuex-pathify'
 import { OrbitSpinner } from 'epic-spinners'
 
 import searchPagesQuery from 'gql/common/common-pages-query-search.gql'
+import VueRouter from 'vue-router'
+
+const router = new VueRouter({
+  mode: 'history',
+  base: '/t'
+})
 
 export default {
   components: {
@@ -109,6 +116,7 @@ export default {
       }
     }
   },
+  router,
   mounted() {
     this.$root.$on('searchMove', (dir) => {
       this.cursor += ((dir === 'up') ? -1 : 1)
@@ -129,6 +137,7 @@ export default {
         this.setSearchTerm(_.nth(this.suggestions, this.cursor - this.results.length))
       }
     })
+    this.$nextTick(this.highlightResult)
   },
   methods: {
     setSearchTerm(term) {
@@ -139,6 +148,28 @@ export default {
     },
     goToPageInNewTab(item) {
       window.open(`/${item.locale}/${item.path}`, '_blank')
+    },
+    highlightResult() {      
+      let query = this.$route.query.qry      
+      if (query) {
+        let paragraphs = document.querySelectorAll('div.page-col-content p')
+        console.log("paragraphs.length >>>", paragraphs.length)
+        let pos = -1, p_cloned = null, new_content = '',
+        p_content = '',qry_end_pos = '', new_txt = ''
+
+        paragraphs.forEach(p => {          
+          p_cloned = p.cloneNode(true)
+          p_content = p_cloned.innerHTML.toUpperCase()
+          pos = p_content.search(query)          
+          if (pos == -1) return false
+
+          // Remplazar en el contenido
+          qry_end_pos = pos + query.length
+          new_txt = p.innerHTML.substring(pos, qry_end_pos)          
+          new_content = p.innerHTML.replaceAll(new_txt, `<span class="highlighted">${new_txt}</span>`)
+          p.innerHTML = new_content
+        });
+      }
     }
   },
   apollo: {
@@ -244,5 +275,9 @@ export default {
     background-color: rgba(0,0,0,.9);
     padding-top: 0;
   }
+}
+
+span.highlighted {
+  background-color: yellow;
 }
 </style>
