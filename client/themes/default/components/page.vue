@@ -61,26 +61,22 @@
             v-card.mb-5(v-if='tocDecoded.length')
               .overline.pa-5.pb-0(:class='$vuetify.theme.dark ? `blue--text text--lighten-2` : `primary--text`') {{$t('common:page.toc')}}
               v-list.pb-3(dense, nav, :class='$vuetify.theme.dark ? `darken-3-d3` : ``')
-                template(v-for='(tocItem, tocIdx) in tocDecoded')
-                  //-v-list-item(@click='$vuetify.goTo(tocItem.anchor, scrollOpts)')
+                template(v-for='(tocItem, tocIdx) in tocDecoded')                  
                   v-list-item(@click='goToCustom(tocItem, null)')
                     v-icon(color='grey', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
                     v-list-item-title.px-3 {{tocItem.title}}
                   //- v-divider(v-if='tocIdx < toc.length - 1 || tocItem.children.length')
-                  template(v-for='tocSubItem in tocItem.children')
-                    //-v-list-item(@click='$vuetify.goTo(tocSubItem.anchor, scrollOpts)')
+                  template(v-for='tocSubItem in tocItem.children')                    
                     v-list-item(@click='goToCustom(tocSubItem, tocItem)' :class='`${tocItem.anchor.replace("#", "")}-children children-item`')
                       v-icon.px-3(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
                       v-list-item-title.px-3.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-3`') {{tocSubItem.title}}
                     //- v-divider(inset, v-if='tocIdx < toc.length - 1')
 
                     //- Tercer nivel agregado
-                    template(v-for='lastItem in tocSubItem.children')
-                      //-v-list-item(@click='$vuetify.goTo(lastItem.anchor, scrollOpts)')
+                    template(v-for='lastItem in tocSubItem.children')                      
                       v-list-item(@click='goToCustom(lastItem, tocSubItem)' :class='`${tocSubItem.anchor.replace("#", "")}-children children-item`')
                         v-icon.px-6(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-page-last` }}
                         v-list-item-title.px-0.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-0`') {{lastItem.title}}
-                    //- v-divider(inset, v-if='tocIdx < toc.length - 1')
 
             v-card.mb-5(v-if='tags.length > 0')
               .pa-5
@@ -196,7 +192,7 @@
                   span {{$t('common:page.printFormat')}}
                 v-spacer
 
-          v-flex.page-col-content(xs12, lg9, xl10)
+          v-flex.page-col-content(xs12, lg9, xl10, v-scroll='onScroll')
             v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasAnyPagePermissions')
               template(v-slot:activator='{ on: onEditActivator }')
                 v-speed-dial(
@@ -483,7 +479,10 @@ export default {
           }
         }
       },
-      winWidth: 0
+      winWidth: 0,
+      lastContent: {},
+      inGoTo: false,
+      finishScroll: null
     }
   },
   computed: {
@@ -655,28 +654,94 @@ export default {
     },
 
     goToCustom(item, parent) {
+      this.inGoTo = true
       this.$vuetify.goTo(item.anchor, this.scrollOpts)
       
       // Se cumple solo en el primer nivel (H1)
-      if (!parent) { 
-        // Se ocultan todos los elementos hijos de la tabla de contenidos
-        let childrenToHide = document.querySelectorAll('.children-item')
-        childrenToHide.forEach(cth => cth.style.display = 'none')
-      }
+      if (!parent) this.hideChildrenOfItem()      
 
       if (item.children.length) {
-        // Se muestran todos los elementos hijos del contenido elegido (cliqueado)
-        let selector = item.anchor.replace('#', '')        
-        let childrenToShow = document.querySelectorAll(`.${selector}-children`)
-        childrenToShow.forEach(cts => cts.style.display = 'flex')
+        let selector = item.anchor.replace('#', '')
+        this.showChildrenOfItem(`${selector}-children`)        
       }
 
-      // Se eliminan la clase de los elementos "resaltados"
-      let items = document.querySelectorAll('.content-shown')
-      items.forEach(item => item.classList.remove('content-shown'))
-      
+      this.clearItemHighlight()      
       let content = event.path[1]
       content.classList.add('content-shown')
+      
+      clearTimeout(this.finishScroll)
+      this.finishScroll = setTimeout(() => { this.inGoTo = false }, 2500);      
+    },
+    onScroll (e) {
+      if (this.inGoTo) return false      
+      
+      let beforePos = 0, afterPos = 0, title = null
+      let titles = document.querySelectorAll(".page-col-content .toc-header")      
+
+      for (let i = 0; i < titles.length; i++) {
+        title = titles[i]
+        beforePos = title.offsetTop - 3
+        afterPos = title.offsetTop + 3        
+        
+        if (window.scrollY >= beforePos && window.scrollY <= afterPos) {
+          //console.log("title.textContent >>>>", title.textContent)
+          i = titles.length
+
+          let item = this.findItemInContentsTable(title)
+          if (item) this.updateContentsTable(item, title)          
+        }
+      }
+    },
+    findItemInContentsTable(title) {
+      let item = null;
+      let contents_table = document.querySelector('div.page-col-sd')
+      let title_txt = title.textContent.replace("¶ ", "")
+              
+      let xpath = `//div[text()='${title_txt}']`;
+      let found = document.evaluate(xpath, contents_table, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;      
+      if (found && found.parentElement) item = found.parentElement
+
+      return item
+    },
+    updateContentsTable(item, title) {      
+      if (!item.classList.contains('children-item')) 
+        this.hideChildrenOfItem()
+        
+      let selector = title.id + '-children'
+      this.showChildrenOfItem(selector)
+      this.clearItemHighlight()
+      item.classList.add('content-shown')
+
+      if (item.style.display == 'none' && item.classList.contains('children-item')) {
+        if (this.lastContent && !this.lastContent.classList.contains('children-item')) this.hideChildrenOfItem()
+
+        item.style.display = 'flex'        
+        
+        item.classList.forEach((classL, i) => {          
+          if (classL.search('-children') != -1) {                        
+            this.showChildrenOfItem(classL)            
+            return false;                  
+          }
+        })
+      }
+
+      this.lastContent = item
+    },
+    hideChildrenOfItem(selector = '.children-item') {
+      // Se ocultan todos los elementos hijos de la tabla de contenidos
+      let childrenToHide = document.querySelectorAll(selector)
+      childrenToHide.forEach(cth => cth.style.display = 'none')
+    },
+    showChildrenOfItem(selector) {
+      // Se muestran todos los elementos hijos del contenido elegido (cliqueado)
+      let childrenToShow = document.querySelectorAll(`.${selector}`)
+      childrenToShow.forEach(cts => cts.style.display = 'flex')
+    },
+    clearItemHighlight() {
+      // Se elimina la clase del elemento "resaltado"
+      let item = document.querySelector('.content-shown')
+      if (item)
+        item.classList.remove('content-shown')
     }
   }
 }
