@@ -2,7 +2,7 @@
   v-app(v-scroll='upBtnScroll', :dark='$vuetify.theme.dark', :class='$vuetify.rtl ? `is-rtl` : `is-ltr`')
     nav-header(v-if='!printView')
     v-navigation-drawer(
-      v-if='navMode !== `NONE` && !printView && !initialLoad'
+      v-if='navMode !== `NONE` && !printView'
       :class='$vuetify.theme.dark ? `grey darken-4-d4` : `primary`'
       dark
       app
@@ -24,7 +24,7 @@
         :right='$vuetify.rtl'
         :left='!$vuetify.rtl'
         small
-        @click='navShown = !navShown; initialLoad = false'
+        @click='navShown = !navShown'
 
         v-show='true'
         )
@@ -594,6 +594,11 @@ export default {
           this.$vuetify.goTo(decodeURIComponent(ev.currentTarget.hash), this.scrollOpts)
         }
       })
+    })
+
+    // Para que la barra lateral azul por defecto se muestre colapasada
+    this.$nextTick(() => {        
+      this.navShown = false
     })
   },
   methods: {
