@@ -2,7 +2,7 @@
   v-app(v-scroll='upBtnScroll', :dark='$vuetify.theme.dark', :class='$vuetify.rtl ? `is-rtl` : `is-ltr`')
     nav-header(v-if='!printView')
     v-navigation-drawer(
-      v-if='navMode !== `NONE` && !printView'
+      v-if='navMode !== `NONE` && !printView && !initialLoad'
       :class='$vuetify.theme.dark ? `grey darken-4-d4` : `primary`'
       dark
       app
@@ -24,7 +24,7 @@
         :right='$vuetify.rtl'
         :left='!$vuetify.rtl'
         small
-        @click='navShown = !navShown'
+        @click='navShown = !navShown; initialLoad = false'
 
         v-show='true'
         )
@@ -482,7 +482,8 @@ export default {
       winWidth: 0,
       lastContent: {},
       inGoTo: false,
-      finishScroll: null
+      finishScroll: null,
+      initialLoad: true,
     }
   },
   computed: {
