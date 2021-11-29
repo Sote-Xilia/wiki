@@ -17,7 +17,7 @@
 <script>
 import _ from 'lodash'
 import { get, sync } from 'vuex-pathify'
-import DecoupledEditor from '@requarks/ckeditor5'
+import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document'
 // import DecoupledEditor from '../../../../wiki-ckeditor5/build/ckeditor'
 import EditorConflict from './ckeditor/conflict.vue'
 import { html as beautify } from 'js-beautify/js/lib/beautifier.min.js'
@@ -141,10 +141,8 @@ export default {
 </script>
 
 <style lang="scss">
-
 $editor-height: calc(100vh - 64px - 24px);
 $editor-height-mobile: calc(100vh - 56px - 16px);
-
 .editor-ckeditor {
   background-color: mc('grey', '200');
   flex: 1 1 50%;
